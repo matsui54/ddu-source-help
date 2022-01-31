@@ -24,7 +24,6 @@ export class Source extends BaseSource<Params> {
             (await args.denops.eval("globpath(&rtp, 'doc/tags')") as string)
               .split("\n");
           for (const f of tagfiles) {
-            console.log(f);
             const lines = Deno.readTextFileSync(f).split(/\r?\n/);
             const root = dirname(f);
             lines.map((line) => {
