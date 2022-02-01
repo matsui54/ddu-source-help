@@ -1,9 +1,9 @@
 import {
   BaseSource,
   Item,
-} from "https://deno.land/x/ddu_vim@v0.1.0/types.ts#^";
-import { Denops } from "https://deno.land/x/ddu_vim@v0.1.0/deps.ts#^";
-import { dirname, join } from "https://deno.land/std@0.120.0/path/mod.ts";
+} from "https://deno.land/x/ddu_vim@v0.4.0/types.ts#^";
+import { Denops, op } from "https://deno.land/x/ddu_vim@v0.4.0/deps.ts#^";
+import { dirname, join } from "https://deno.land/std@0.123.0/path/mod.ts";
 import { ActionData } from "../@ddu-kinds/help.ts";
 
 type Params = {};
@@ -18,25 +18,45 @@ export class Source extends BaseSource<Params> {
     return new ReadableStream({
       async start(controller) {
         const items: Item<ActionData>[] = [];
+        const langs = (await op.helplang.getGlobal(args.denops)).split(",");
+        const tagsMap: Record<string, boolean> = {};
+        const helpMap: Record<string, string[]> = {};
+        for (const lang of langs) {
+          helpMap[lang] = [];
+        }
 
         try {
           const tagfiles =
-            (await args.denops.eval("globpath(&rtp, 'doc/tags')") as string)
+            (await args.denops.eval("globpath(&rtp, 'doc/tags*')") as string)
               .split("\n");
           for (const f of tagfiles) {
-            const lines = Deno.readTextFileSync(f).split(/\r?\n/);
-            const root = dirname(f);
-            lines.map((line) => {
-              const seg = line.split("\t");
-              if (seg.length < 2) return;
-              items.push({
-                word: seg[0],
-                action: {
-                  path: join(root, seg[1]),
-                  pattern: seg[0],
-                },
+            const m = f.match(/tags-(\w*)$/);
+            if (m) {
+              if (langs.includes(m[1])) {
+                helpMap[m[1]].push(f);
+              }
+            } else if (/doc\/tags$/.test(f)) {
+              helpMap["en"].push(f);
+            }
+          }
+          for (const lang of langs) {
+            for (const f of helpMap[lang]) {
+              const lines = Deno.readTextFileSync(f).split(/\r?\n/);
+              const root = dirname(f);
+              lines.map((line) => {
+                const seg = line.split("\t");
+                if (seg.length < 2) return;
+                if (tagsMap[seg[0]]) return;
+                items.push({
+                  word: seg[0],
+                  action: {
+                    path: join(root, seg[1]),
+                    pattern: seg[0],
+                  },
+                });
+                tagsMap[seg[0]] = true;
               });
-            });
+            }
           }
           controller.enqueue(items);
         } catch (e) {
