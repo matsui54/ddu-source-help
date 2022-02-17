@@ -1,22 +1,15 @@
 import {
-  ActionArguments,
-  ActionFlags,
   BaseSource,
-  DduItem,
   Item,
-} from "https://deno.land/x/ddu_vim@v0.12.2/types.ts#^";
-import { Denops, op } from "https://deno.land/x/ddu_vim@v0.12.2/deps.ts#^";
-import { dirname, join } from "https://deno.land/std@0.126.0/path/mod.ts";
+} from "https://deno.land/x/ddu_vim@v0.4.0/types.ts#^";
+import { Denops, op } from "https://deno.land/x/ddu_vim@v0.4.0/deps.ts#^";
+import { dirname, join } from "https://deno.land/std@0.123.0/path/mod.ts";
+import { ActionData } from "../@ddu-kinds/help.ts";
 
-type ActionData = {
-  path: string;
-  pattern: string;
-};
-
-type Params = Record<never, never>;
+type Params = {};
 
 export class Source extends BaseSource<Params> {
-  kind = "file";
+  kind = "help";
 
   gather(args: {
     denops: Denops;
@@ -73,27 +66,6 @@ export class Source extends BaseSource<Params> {
       },
     });
   }
-
-  actions: Record<
-    string,
-    (args: ActionArguments<Params>) => Promise<ActionFlags>
-  > = {
-    open: async (args: { denops: Denops; items: DduItem[] }) => {
-      const action = args.items[0]?.action as ActionData;
-      await args.denops.cmd(`silent help ${action.pattern}`);
-      return Promise.resolve(ActionFlags.None);
-    },
-    vsplit: async (args: { denops: Denops; items: DduItem[] }) => {
-      const action = args.items[0]?.action as ActionData;
-      await args.denops.cmd(`silent veritical help ${action.pattern}`);
-      return Promise.resolve(ActionFlags.None);
-    },
-    tabopen: async (args: { denops: Denops; items: DduItem[] }) => {
-      const action = args.items[0]?.action as ActionData;
-      await args.denops.cmd(`silent tab help ${action.pattern}`);
-      return Promise.resolve(ActionFlags.None);
-    },
-  };
 
   params(): Params {
     return {};
