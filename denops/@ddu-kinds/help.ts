@@ -25,7 +25,7 @@ export class Kind extends BaseKind<Params> {
     },
     vsplit: async (args: { denops: Denops; items: DduItem[] }) => {
       const action = args.items[0]?.action as ActionData;
-      await args.denops.cmd(`silent veritical help ${action.pattern}`);
+      await args.denops.cmd(`silent vertical help ${action.pattern}`);
       return Promise.resolve(ActionFlags.None);
     },
     tabopen: async (args: { denops: Denops; items: DduItem[] }) => {
