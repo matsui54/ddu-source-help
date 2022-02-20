@@ -1,9 +1,9 @@
 import {
   BaseSource,
   Item,
-} from "https://deno.land/x/ddu_vim@v0.4.0/types.ts#^";
-import { Denops, op } from "https://deno.land/x/ddu_vim@v0.4.0/deps.ts#^";
-import { dirname, join } from "https://deno.land/std@0.123.0/path/mod.ts";
+} from "https://deno.land/x/ddu_vim@v0.12.2/types.ts#^";
+import { Denops, op } from "https://deno.land/x/ddu_vim@v0.12.2/deps.ts#^";
+import { dirname, join } from "https://deno.land/std@0.126.0/path/mod.ts";
 import { ActionData } from "../@ddu-kinds/help.ts";
 
 type Params = {};
@@ -21,6 +21,9 @@ export class Source extends BaseSource<Params> {
         const langs = (await op.helplang.getGlobal(args.denops)).split(",");
         const tagsMap: Record<string, boolean> = {};
         const helpMap: Record<string, string[]> = {};
+        if (!langs.includes("en")) {
+          langs.push("en");
+        }
         for (const lang of langs) {
           helpMap[lang] = [];
         }
