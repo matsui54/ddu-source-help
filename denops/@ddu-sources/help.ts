@@ -3,7 +3,15 @@ import { Denops, op } from "https://deno.land/x/ddu_vim@v1.2.0/deps.ts";
 import { dirname, join } from "https://deno.land/std@0.129.0/path/mod.ts";
 import { ActionData } from "../@ddu-kinds/help.ts";
 
-type Params = {};
+type Params = {
+  style: "allLang" | "minimal";
+  helpLang?: string;
+};
+
+type HelpInfo = {
+  lang: string;
+  path: string;
+};
 
 export class Source extends BaseSource<Params> {
   kind = "help";
@@ -14,9 +22,8 @@ export class Source extends BaseSource<Params> {
   }): ReadableStream<Item<ActionData>[]> {
     return new ReadableStream({
       async start(controller) {
-        const items: Item<ActionData>[] = [];
-        const langs = (await op.helplang.getGlobal(args.denops)).split(",");
-        const tagsMap: Record<string, boolean> = {};
+        const langs = args.sourceParams.helpLang?.split(",") ??
+          (await op.helplang.getGlobal(args.denops)).split(",");
         const helpMap: Record<string, string[]> = {};
         if (!langs.includes("en")) {
           langs.push("en");
@@ -39,6 +46,7 @@ export class Source extends BaseSource<Params> {
               helpMap["en"].push(f);
             }
           }
+          const tagsMap: Record<string, HelpInfo[]> = {};
           for (const lang of langs) {
             for (const f of helpMap[lang]) {
               const lines = Deno.readTextFileSync(f).split(/\r?\n/);
@@ -46,18 +54,38 @@ export class Source extends BaseSource<Params> {
               lines.map((line) => {
                 const seg = line.split("\t");
                 if (seg.length < 2) return;
-                if (tagsMap[seg[0]]) return;
-                items.push({
-                  word: seg[0],
-                  action: {
-                    path: join(root, seg[1]),
-                    pattern: seg[0],
-                  },
-                });
-                tagsMap[seg[0]] = true;
+                const [tag, path] = seg;
+                if (!tagsMap[tag]) {
+                  tagsMap[tag] = [];
+                }
+                tagsMap[tag].push({ lang, path: join(root, path) });
               });
             }
           }
+          const items: Item<ActionData>[] = [];
+          Object.keys(tagsMap).map((tag) => {
+            const info = tagsMap[tag];
+            if (args.sourceParams.style == "minimal" || info.length < 2) {
+              items.push({
+                word: tag,
+                action: {
+                  path: info[0].path,
+                  pattern: tag,
+                },
+              });
+            } else {
+              for (const i of info) {
+                const pattern = `${tag}@${i.lang}`;
+                items.push({
+                  word: pattern,
+                  action: {
+                    path: i.path,
+                    pattern: pattern,
+                  },
+                });
+              }
+            }
+          });
           controller.enqueue(items);
         } catch (e) {
           console.error(e);
@@ -68,6 +96,8 @@ export class Source extends BaseSource<Params> {
   }
 
   params(): Params {
-    return {};
+    return {
+      style: "minimal",
+    };
   }
 }

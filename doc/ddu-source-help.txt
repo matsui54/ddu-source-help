@@ -33,6 +33,25 @@ EXAMPLES				*ddu-source-help-examples*
 ==============================================================================
 PARAMS					*ddu-source-help-params*
 
+					  *ddu-source-help-param-helpLang*
+helpLang	(string)
+		The same format as |'helplang'|.
+		Useful for overriding Vim's option value.
+
+		Default: undefined
+
+					  *ddu-source-help-param-style*
+style		(string)
+		Style of how items are shown.
+		Valid values are the following.
+
+		minimal:	Shows only one tag even if multiple languages
+				are available.
+
+		allLang:	Shows tags for all available languages.
+
+		Default: "minimal"
+
 ==============================================================================
 ACTIONS						*ddu-kind-help-actions*
 
