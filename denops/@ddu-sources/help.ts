@@ -11,6 +11,7 @@ type Params = {
 type HelpInfo = {
   lang: string;
   path: string;
+  pattern: string;
 };
 
 export class Source extends BaseSource<Params> {
@@ -54,11 +55,15 @@ export class Source extends BaseSource<Params> {
               lines.map((line) => {
                 const seg = line.split("\t");
                 if (seg.length < 2) return;
-                const [tag, path] = seg;
+                const [tag, path, pattern] = seg;
                 if (!tagsMap[tag]) {
                   tagsMap[tag] = [];
                 }
-                tagsMap[tag].push({ lang, path: join(root, path) });
+                tagsMap[tag].push({
+                  lang,
+                  path: join(root, path),
+                  pattern: pattern.slice(1),
+                });
               });
             }
           }
@@ -69,8 +74,9 @@ export class Source extends BaseSource<Params> {
               items.push({
                 word: tag,
                 action: {
+                  word: tag,
                   path: info[0].path,
-                  pattern: tag,
+                  pattern: "\\V" + info[0].pattern,
                 },
               });
             } else {
@@ -79,8 +85,9 @@ export class Source extends BaseSource<Params> {
                 items.push({
                   word: pattern,
                   action: {
+                    word: pattern,
                     path: i.path,
-                    pattern: pattern,
+                    pattern: "\\V" + i.pattern,
                   },
                 });
               }
