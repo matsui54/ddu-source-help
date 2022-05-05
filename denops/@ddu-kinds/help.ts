@@ -4,8 +4,8 @@ import {
   BaseKind,
   DduItem,
   Previewer,
-} from "../../../../Shougo/ddu.vim/denops/ddu/types.ts";
-import { Denops } from "https://deno.land/x/ddu_vim@v1.5.0/deps.ts";
+} from "https://deno.land/x/ddu_vim@v1.6.0/types.ts";
+import { Denops } from "https://deno.land/x/ddu_vim@v1.6.0/deps.ts";
 
 export type ActionData = {
   word: string;
@@ -37,20 +37,18 @@ export class Kind extends BaseKind<Params> {
     },
   };
 
-  getPreviewer(
-    _denops: Denops,
-    item: DduItem,
-    _actionParams: unknown,
-  ): Previewer | undefined {
-    const action = item.action as ActionData;
+  getPreviewer(args: {
+    item: DduItem;
+  }): Promise<Previewer | undefined> {
+    const action = args.item.action as ActionData;
     if (!action || !action.path) {
-      return undefined;
+      return Promise.resolve(undefined);
     }
-    return {
+    return Promise.resolve({
       kind: "buffer",
       path: action.path,
       pattern: action.pattern,
-    };
+    });
   }
 
   params(): Params {
