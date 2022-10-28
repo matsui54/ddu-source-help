@@ -48,6 +48,7 @@ export class Kind extends BaseKind<Params> {
       kind: "buffer",
       path: action.path,
       pattern: action.pattern,
+      syntax: "help",
     });
   }
 
