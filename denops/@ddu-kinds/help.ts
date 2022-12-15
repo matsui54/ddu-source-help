@@ -4,8 +4,8 @@ import {
   BaseKind,
   DduItem,
   Previewer,
-} from "https://deno.land/x/ddu_vim@v1.13.0/types.ts";
-import { Denops } from "https://deno.land/x/ddu_vim@v1.13.0/deps.ts";
+} from "https://deno.land/x/ddu_vim@v2.0.0/types.ts";
+import { Denops } from "https://deno.land/x/ddu_vim@v2.0.0/deps.ts";
 
 export type ActionData = {
   word: string;
