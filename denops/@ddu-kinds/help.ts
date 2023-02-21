@@ -13,6 +13,10 @@ export type ActionData = {
   pattern: string;
 };
 
+type OpenParams = {
+  command: string;
+};
+
 type Params = Record<never, never>;
 
 export class Kind extends BaseKind<Params> {
@@ -20,20 +24,39 @@ export class Kind extends BaseKind<Params> {
     string,
     (args: ActionArguments<Params>) => Promise<ActionFlags>
   > = {
-    open: async (args: { denops: Denops; items: DduItem[] }) => {
-      const action = args.items[0]?.action as ActionData;
-      await args.denops.cmd(`silent help ${action.word}`);
+    open: async ({
+      denops,
+      actionParams,
+      items,
+    }: ActionArguments<Params>) => {
+      const params = actionParams as OpenParams;
+      // Convert sp[lit], vs[plit] tabe[dit] -> "vertical", "", "tab"
+      const openCommand = (params.command ?? "").replace(
+        /^vs(?:p(?:l(?:i(?:t)?)?)?)?$/,
+        "vertical",
+      ).replace(
+        /^s(?:p(?:l(?:i(?:t)?)?)?)?$/,
+        "",
+      ).replace(
+        /^tabe(?:d(?:i(?:t?)?)?)?$/,
+        "tab",
+      );
+
+      const action = items[0]?.action as ActionData;
+      await denops.cmd(`silent ${openCommand} help ${action.word}`);
       return Promise.resolve(ActionFlags.None);
     },
-    vsplit: async (args: { denops: Denops; items: DduItem[] }) => {
-      const action = args.items[0]?.action as ActionData;
-      await args.denops.cmd(`silent vertical help ${action.word}`);
-      return Promise.resolve(ActionFlags.None);
+    vsplit: (args: ActionArguments<Params>) => {
+      return this.actions["open"]({
+        ...args,
+        actionParams: { command: "vertical" },
+      });
     },
-    tabopen: async (args: { denops: Denops; items: DduItem[] }) => {
-      const action = args.items[0]?.action as ActionData;
-      await args.denops.cmd(`silent tab help ${action.word}`);
-      return Promise.resolve(ActionFlags.None);
+    tabopen: (args: ActionArguments<Params>) => {
+      return this.actions["open"]({
+        ...args,
+        actionParams: { command: "tab" },
+      });
     },
   };
 

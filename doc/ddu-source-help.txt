@@ -59,6 +59,18 @@ ACTIONS						*ddu-kind-help-actions*
 open
 		Open help.
 
+		Params:
+
+		{command}: (string)
+		Command appended before `help` command. Valid values are like
+		"virtical" and "tab".
+
+		Note: If you pass "sp[lit], vs[plit] and tabe[dit]", they are
+		converted to valid open command, so that you can use the same
+		action as ddu-kind-file like the following. >
+		call ddu#ui#ff#do_action('itemAction', 
+			\ {'name': 'open', 'params': {'command': 'vsplit'}})
+<
 						*ddu-kind-help-action-vsplit*
 vsplit
 		Open help in splited window.
