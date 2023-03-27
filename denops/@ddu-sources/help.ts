@@ -1,6 +1,6 @@
-import { BaseSource, Item } from "https://deno.land/x/ddu_vim@v2.1.0/types.ts";
-import { Denops, op } from "https://deno.land/x/ddu_vim@v2.1.0/deps.ts";
-import { dirname, join } from "https://deno.land/std@0.171.0/path/mod.ts";
+import { BaseSource, Item } from "https://deno.land/x/ddu_vim@v2.7.0/types.ts";
+import { Denops, op } from "https://deno.land/x/ddu_vim@v2.7.0/deps.ts";
+import { dirname, join } from "https://deno.land/std@0.181.0/path/mod.ts";
 import { ActionData } from "../@ddu-kinds/help.ts";
 
 type Params = {
