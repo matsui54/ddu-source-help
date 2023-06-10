@@ -50,7 +50,7 @@ export class Source extends BaseSource<Params> {
               const root = dirname(f);
               lines.map((line) => {
                 const seg = line.split("\t");
-                if (seg.length < 2) return;
+                if (seg.length < 3) return;
                 const [tag, path, pattern] = seg;
                 if (!tagsMap[tag]) {
                   tagsMap[tag] = [];
