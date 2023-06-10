@@ -48,9 +48,10 @@ export class Source extends BaseSource<Params> {
             }
           }
           const tagsMap: Record<string, HelpInfo[]> = {};
-          for (const lang of langs) {
-            for (const f of helpMap[lang]) {
-              const lines = Deno.readTextFileSync(f).split(/\r?\n/);
+
+          const fileReadPromise = langs.flatMap((lang) =>
+            helpMap[lang].map(async (f) => {
+              const lines = (await Deno.readTextFile(f)).split(/\r?\n/);
               const root = dirname(f);
               lines.map((line) => {
                 const seg = line.split("\t");
@@ -65,8 +66,10 @@ export class Source extends BaseSource<Params> {
                   pattern: pattern.slice(1),
                 });
               });
-            }
-          }
+            })
+          );
+          await Promise.all(fileReadPromise);
+
           const items: Item<ActionData>[] = [];
           Object.keys(tagsMap).map((tag) => {
             const info = tagsMap[tag];
