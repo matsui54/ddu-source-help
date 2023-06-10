@@ -39,10 +39,8 @@ export class Source extends BaseSource<Params> {
               .split("\n");
           for (const f of tagfiles) {
             const m = f.match(/tags-(\w*)$/);
-            if (m) {
-              if (langs.includes(m[1])) {
-                helpMap[m[1]].push(f);
-              }
+            if (m && langs.includes(m[1])) {
+              helpMap[m[1]].push(f);
             } else if (/doc(:?\/|\\)tags$/.test(f)) {
               helpMap["en"].push(f);
             }
