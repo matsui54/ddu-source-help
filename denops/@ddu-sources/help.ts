@@ -70,30 +70,28 @@ export class Source extends BaseSource<Params> {
           );
           await Promise.all(fileReadPromise);
 
-          const items: Item<ActionData>[] = [];
-          Object.keys(tagsMap).map((tag) => {
-            const info = tagsMap[tag];
-            if (args.sourceParams.style == "minimal" || info.length < 2) {
-              items.push({
+          const items = Object.entries(tagsMap).flatMap(([tag, infos]) => {
+            if (args.sourceParams.style === "minimal" || infos.length < 2) {
+              return {
                 word: tag,
                 action: {
                   word: tag,
-                  path: info[0].path,
-                  pattern: "\\V" + info[0].pattern,
+                  path: infos[0].path,
+                  pattern: "\\V" + infos[0].pattern,
                 },
-              });
+              };
             } else {
-              for (const i of info) {
-                const pattern = `${tag}@${i.lang}`;
-                items.push({
+              return infos.map((info) => {
+                const pattern = `${tag}@${info.lang}`;
+                return {
                   word: pattern,
                   action: {
                     word: pattern,
-                    path: i.path,
-                    pattern: "\\V" + i.pattern,
+                    path: info.path,
+                    pattern: "\\V" + info.pattern,
                   },
-                });
-              }
+                };
+              });
             }
           });
           controller.enqueue(items);
