@@ -43,7 +43,7 @@ export class Source extends BaseSource<Params> {
               if (langs.includes(m[1])) {
                 helpMap[m[1]].push(f);
               }
-            } else if (/doc(:?\/|\\)tags$/.test(f)) {
+            } else if (/doc[\/\\]tags$/.test(f)) {
               helpMap["en"].push(f);
             }
           }
