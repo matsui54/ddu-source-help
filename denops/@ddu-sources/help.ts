@@ -25,13 +25,10 @@ export class Source extends BaseSource<Params> {
       async start(controller) {
         const langs = args.sourceParams.helpLang?.split(",") ??
           (await op.helplang.getGlobal(args.denops)).split(",");
-        const helpMap: Record<string, string[]> = {};
-        if (!langs.includes("en")) {
-          langs.push("en");
-        }
-        for (const lang of langs) {
-          helpMap[lang] = [];
-        }
+        const helpMap: Record<string, string[]> = langs.reduce(
+          (acc, lang) => ({ ...acc, [lang]: [] }),
+          { en: [] },
+        );
 
         try {
           const tagfiles =
