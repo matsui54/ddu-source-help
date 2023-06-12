@@ -49,6 +49,9 @@ export class Source extends BaseSource<Params> {
               const lines = (await Deno.readTextFile(f)).split(/\r?\n/);
               const root = dirname(f);
               lines.map((line) => {
+                if (line.startsWith("!_TAG_FILE_ENCODING")) {
+                  return;
+                }
                 const seg = line.split("\t");
                 if (seg.length < 3) return;
                 const [tag, path, pattern] = seg;
