@@ -38,7 +38,7 @@ export class Source extends BaseSource<Params> {
             const m = f.match(/tags-(\w*)$/);
             if (m && langs.includes(m[1])) {
               helpMap[m[1]].push(f);
-            } else if (/doc(:?\/|\\)tags$/.test(f)) {
+            } else if (/doc[\/\\]tags$/.test(f)) {
               helpMap["en"].push(f);
             }
           }
