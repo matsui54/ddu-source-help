@@ -31,9 +31,10 @@ export class Source extends BaseSource<Params> {
         );
 
         try {
-          const tagfiles =
-            (await args.denops.eval("globpath(&rtp, 'doc/tags*')") as string)
-              .split("\n");
+          const rtp = op.runtimepath.getGlobal(args.denops);
+          const tagfiles = (await fn.globpath(args.denops, rtp, "doc/tags*"))
+            .split("\n");
+
           for (const f of tagfiles) {
             const m = f.match(/tags-(\w*)$/);
             if (m && langs.includes(m[1])) {
