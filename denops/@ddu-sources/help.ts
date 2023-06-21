@@ -1,6 +1,6 @@
-import { BaseSource, Item } from "https://deno.land/x/ddu_vim@v2.8.4/types.ts";
-import { Denops, op } from "https://deno.land/x/ddu_vim@v2.8.4/deps.ts";
-import { dirname, join } from "https://deno.land/std@0.187.0/path/mod.ts";
+import { BaseSource, Item } from "https://deno.land/x/ddu_vim@v3.0.2/types.ts";
+import { Denops, fn, op } from "https://deno.land/x/ddu_vim@v3.0.2/deps.ts";
+import { dirname, join } from "https://deno.land/std@0.191.0/path/mod.ts";
 import { ActionData } from "../@ddu-kinds/help.ts";
 
 type Params = {
@@ -25,24 +25,20 @@ export class Source extends BaseSource<Params> {
       async start(controller) {
         const langs = args.sourceParams.helpLang?.split(",") ??
           (await op.helplang.getGlobal(args.denops)).split(",");
-        const helpMap: Record<string, string[]> = {};
-        if (!langs.includes("en")) {
-          langs.push("en");
-        }
-        for (const lang of langs) {
-          helpMap[lang] = [];
-        }
+        const helpMap: Record<string, string[]> = langs.reduce(
+          (acc, lang) => ({ ...acc, [lang]: [] }),
+          { en: [] },
+        );
 
         try {
-          const tagfiles =
-            (await args.denops.eval("globpath(&rtp, 'doc/tags*')") as string)
-              .split("\n");
+          const rtp = await op.runtimepath.getGlobal(args.denops);
+          const tagfiles = (await fn.globpath(args.denops, rtp, "doc/tags*"))
+            .split("\n");
+
           for (const f of tagfiles) {
             const m = f.match(/tags-(\w*)$/);
-            if (m) {
-              if (langs.includes(m[1])) {
-                helpMap[m[1]].push(f);
-              }
+            if (m && langs.includes(m[1])) {
+              helpMap[m[1]].push(f);
             } else if (/doc[\/\\]tags$/.test(f)) {
               helpMap["en"].push(f);
             }
@@ -54,8 +50,11 @@ export class Source extends BaseSource<Params> {
               const lines = (await Deno.readTextFile(f)).split(/\r?\n/);
               const root = dirname(f);
               lines.map((line) => {
+                if (line.startsWith("!_TAG_FILE_ENCODING")) {
+                  return;
+                }
                 const seg = line.split("\t");
-                if (seg.length < 2) return;
+                if (seg.length < 3) return;
                 const [tag, path, pattern] = seg;
                 if (!tagsMap[tag]) {
                   tagsMap[tag] = [];
@@ -70,30 +69,28 @@ export class Source extends BaseSource<Params> {
           );
           await Promise.all(fileReadPromise);
 
-          const items: Item<ActionData>[] = [];
-          Object.keys(tagsMap).map((tag) => {
-            const info = tagsMap[tag];
-            if (args.sourceParams.style == "minimal" || info.length < 2) {
-              items.push({
+          const items = Object.entries(tagsMap).flatMap(([tag, infos]) => {
+            if (args.sourceParams.style === "minimal" || infos.length < 2) {
+              return {
                 word: tag,
                 action: {
                   word: tag,
-                  path: info[0].path,
-                  pattern: "\\V" + info[0].pattern,
+                  path: infos[0].path,
+                  pattern: "\\V" + infos[0].pattern,
                 },
-              });
+              };
             } else {
-              for (const i of info) {
-                const pattern = `${tag}@${i.lang}`;
-                items.push({
+              return infos.map((info) => {
+                const pattern = `${tag}@${info.lang}`;
+                return {
                   word: pattern,
                   action: {
                     word: pattern,
-                    path: i.path,
-                    pattern: "\\V" + i.pattern,
+                    path: info.path,
+                    pattern: "\\V" + info.pattern,
                   },
-                });
-              }
+                };
+              });
             }
           });
           controller.enqueue(items);
