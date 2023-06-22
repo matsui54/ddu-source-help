@@ -25,9 +25,12 @@ export class Source extends BaseSource<Params> {
       async start(controller) {
         const langs = args.sourceParams.helpLang?.split(",") ??
           (await op.helplang.getGlobal(args.denops)).split(",");
+        if (!langs.includes("en")) {
+          langs.push("en");
+        }
         const helpMap: Record<string, string[]> = langs.reduce(
           (acc, lang) => ({ ...acc, [lang]: [] }),
-          { en: [] },
+          {},
         );
 
         try {
