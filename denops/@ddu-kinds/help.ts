@@ -17,7 +17,7 @@ type OpenParams = {
 };
 
 type Params = {
-  histadd?: boolean;
+  histadd: boolean;
 };
 
 export class Kind extends BaseKind<Params> {
@@ -84,6 +84,8 @@ export class Kind extends BaseKind<Params> {
   }
 
   params(): Params {
-    return {};
+    return {
+      histadd: false,
+    };
   }
 }
