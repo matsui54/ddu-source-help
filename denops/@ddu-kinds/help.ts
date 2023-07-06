@@ -5,7 +5,6 @@ import {
   DduItem,
   Previewer,
 } from "https://deno.land/x/ddu_vim@v3.0.2/types.ts";
-import { Denops } from "https://deno.land/x/ddu_vim@v3.0.2/deps.ts";
 
 export type ActionData = {
   word: string;
@@ -17,7 +16,9 @@ type OpenParams = {
   command: string;
 };
 
-type Params = Record<never, never>;
+type Params = {
+  histadd?: boolean;
+};
 
 export class Kind extends BaseKind<Params> {
   actions: Record<
@@ -28,6 +29,7 @@ export class Kind extends BaseKind<Params> {
       denops,
       actionParams,
       items,
+      kindParams,
     }: ActionArguments<Params>) => {
       const params = actionParams as OpenParams;
       // Convert sp[lit], vs[plit] tabe[dit] -> "vertical", "", "tab"
@@ -43,7 +45,13 @@ export class Kind extends BaseKind<Params> {
       );
 
       const action = items[0]?.action as ActionData;
-      await denops.cmd(`silent ${openCommand} help ${action.word}`);
+      const command = `${openCommand} help ${action.word}`;
+
+      if (kindParams.histadd) {
+        await denops.call("histadd", "cmd", command.replace(/^\s+/, ""));
+      }
+
+      await denops.cmd(`silent! ${command}`);
       return Promise.resolve(ActionFlags.None);
     },
     vsplit: (args: ActionArguments<Params>) => {
