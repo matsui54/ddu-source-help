@@ -35,8 +35,9 @@ export class Source extends BaseSource<Params> {
 
         try {
           const rtp = await op.runtimepath.getGlobal(args.denops);
-          const tagfiles = (await fn.globpath(args.denops, rtp, "doc/tags*"))
-            .split("\n");
+          const tagfiles = (
+            await fn.globpath(args.denops, rtp, "doc/tags*")
+          ).split("\n");
 
           for (const f of tagfiles) {
             const m = f.match(/tags-(\w*)$/);
@@ -46,7 +47,10 @@ export class Source extends BaseSource<Params> {
               helpMap["en"].push(f);
             }
           }
-          const tagsMap: Record<string, HelpInfo[]> = {};
+          const tagsMap: Map<string, HelpInfo[]> = new Map<
+            string,
+            HelpInfo[]
+          >();
 
           const fileReadPromise = langs.flatMap((lang) =>
             helpMap[lang].map(async (f) => {
@@ -59,10 +63,10 @@ export class Source extends BaseSource<Params> {
                 const seg = line.split("\t");
                 if (seg.length < 3) return;
                 const [tag, path, pattern] = seg;
-                if (!tagsMap[tag]) {
-                  tagsMap[tag] = [];
+                if (!tagsMap.has(tag)) {
+                  tagsMap.set(tag, []);
                 }
-                tagsMap[tag].push({
+                tagsMap.get(tag)?.push({
                   lang,
                   path: join(root, path),
                   pattern: pattern.slice(1),
@@ -72,30 +76,32 @@ export class Source extends BaseSource<Params> {
           );
           await Promise.all(fileReadPromise);
 
-          const items = Object.entries(tagsMap).flatMap(([tag, infos]) => {
-            if (args.sourceParams.style === "minimal" || infos.length < 2) {
-              return {
-                word: tag,
-                action: {
-                  word: tag,
-                  path: infos[0].path,
-                  pattern: "\\V" + infos[0].pattern,
-                },
-              };
-            } else {
-              return infos.map((info) => {
-                const pattern = `${tag}@${info.lang}`;
+          const items = Array.from(tagsMap.entries()).flatMap(
+            ([tag, infos]) => {
+              if (args.sourceParams.style === "minimal" || infos.length < 2) {
                 return {
-                  word: pattern,
+                  word: tag,
                   action: {
-                    word: pattern,
-                    path: info.path,
-                    pattern: "\\V" + info.pattern,
+                    word: tag,
+                    path: infos[0].path,
+                    pattern: "\\V" + infos[0].pattern,
                   },
                 };
-              });
-            }
-          });
+              } else {
+                return infos.map((info) => {
+                  const pattern = `${tag}@${info.lang}`;
+                  return {
+                    word: pattern,
+                    action: {
+                      word: pattern,
+                      path: info.path,
+                      pattern: "\\V" + info.pattern,
+                    },
+                  };
+                });
+              }
+            },
+          );
           controller.enqueue(items);
         } catch (e) {
           console.error(e);
