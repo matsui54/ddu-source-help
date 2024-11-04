@@ -1,7 +1,13 @@
-import { BaseSource, Item } from "https://deno.land/x/ddu_vim@v3.0.2/types.ts";
-import { Denops, fn, op } from "https://deno.land/x/ddu_vim@v3.0.2/deps.ts";
-import { dirname, join } from "https://deno.land/std@0.191.0/path/mod.ts";
+import { Item } from "jsr:@shougo/ddu-vim@~6.4.0/types";
+import { BaseSource } from "jsr:@shougo/ddu-vim@~6.4.0/source";
 import { ActionData } from "../@ddu-kinds/help.ts";
+
+import type { Denops } from "jsr:@denops/core@~7.0.0";
+import * as fn from "jsr:@denops/std@~7.1.1/function";
+import * as op from "jsr:@denops/std@~7.3.0/option";
+
+import { dirname } from "jsr:@std/path@~1.0.2/dirname";
+import { join } from "jsr:@std/path@~1.0.2/join";
 
 type Params = {
   style: "allLang" | "minimal";
@@ -15,7 +21,7 @@ type HelpInfo = {
 };
 
 export class Source extends BaseSource<Params> {
-  kind = "help";
+  override kind = "help";
 
   gather(args: {
     denops: Denops;
@@ -29,7 +35,10 @@ export class Source extends BaseSource<Params> {
           langs.push("en");
         }
         const helpMap: Record<string, string[]> = langs.reduce(
-          (acc: string[], lang: string) => ({ ...acc, [lang]: [] }),
+          (acc: Record<string, string[]>, lang: string) => ({
+            ...acc,
+            [lang]: [],
+          }),
           {},
         );
 
