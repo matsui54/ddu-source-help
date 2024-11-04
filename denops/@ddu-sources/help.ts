@@ -36,7 +36,7 @@ export class Source extends BaseSource<Params> {
         try {
           const rtp = await op.runtimepath.getGlobal(args.denops);
           const tagfiles = (
-            await fn.globpath(args.denops, rtp, "doc/tags*")
+            await fn.globpath(args.denops, rtp, "doc/tags*", true)
           ).split("\n");
 
           for (const f of tagfiles) {
