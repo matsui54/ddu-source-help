@@ -29,14 +29,14 @@ export class Source extends BaseSource<Params> {
           langs.push("en");
         }
         const helpMap: Record<string, string[]> = langs.reduce(
-          (acc, lang) => ({ ...acc, [lang]: [] }),
+          (acc: string[], lang: string) => ({ ...acc, [lang]: [] }),
           {},
         );
 
         try {
           const rtp = await op.runtimepath.getGlobal(args.denops);
           const tagfiles = (
-            await fn.globpath(args.denops, rtp, "doc/tags*")
+            await fn.globpath(args.denops, rtp, "doc/tags*", true)
           ).split("\n");
 
           for (const f of tagfiles) {
@@ -52,7 +52,7 @@ export class Source extends BaseSource<Params> {
             HelpInfo[]
           >();
 
-          const fileReadPromise = langs.flatMap((lang) =>
+          const fileReadPromise = langs.flatMap((lang: string) =>
             helpMap[lang].map(async (f) => {
               const lines = (await Deno.readTextFile(f)).split(/\r?\n/);
               const root = dirname(f);
