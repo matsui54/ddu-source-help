@@ -3,7 +3,7 @@ import { BaseSource } from "jsr:@shougo/ddu-vim@~6.4.0/source";
 import { ActionData } from "../@ddu-kinds/help.ts";
 
 import type { Denops } from "jsr:@denops/core@~7.0.0";
-import * as fn from "jsr:@denops/std@~7.1.1/function";
+import * as fn from "jsr:@denops/std@~7.3.0/function";
 import * as op from "jsr:@denops/std@~7.3.0/option";
 
 import { dirname } from "jsr:@std/path@~1.0.2/dirname";
