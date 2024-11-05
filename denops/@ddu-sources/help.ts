@@ -1,6 +1,9 @@
-import { BaseSource, Item } from "https://deno.land/x/ddu_vim@v3.0.2/types.ts";
-import { Denops, fn, op } from "https://deno.land/x/ddu_vim@v3.0.2/deps.ts";
-import { dirname, join } from "https://deno.land/std@0.191.0/path/mod.ts";
+import { BaseSource } from "jsr:@shougo/ddu-vim@~6.4.0/source";
+import { Item } from "jsr:@shougo/ddu-vim@~6.4.0/types";
+import { Denops } from "jsr:@denops/std@~7.3.0";
+import * as fn from "jsr:@denops/std@~7.3.0/function";
+import * as op from "jsr:@denops/std@~7.3.0/option";
+import { dirname, join } from "jsr:@std/path@~1.0.6";
 import { ActionData } from "../@ddu-kinds/help.ts";
 
 type Params = {
@@ -15,7 +18,7 @@ type HelpInfo = {
 };
 
 export class Source extends BaseSource<Params> {
-  kind = "help";
+  override kind = "help";
 
   gather(args: {
     denops: Denops;

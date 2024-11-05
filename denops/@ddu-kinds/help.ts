@@ -1,10 +1,10 @@
 import {
   ActionArguments,
   ActionFlags,
-  BaseKind,
   DduItem,
   Previewer,
-} from "https://deno.land/x/ddu_vim@v3.0.2/types.ts";
+} from "jsr:@shougo/ddu-vim@~6.4.0/types";
+import { BaseKind } from "jsr:@shougo/ddu-vim@~6.4.0/kind";
 
 export type ActionData = {
   word: string;
@@ -68,7 +68,7 @@ export class Kind extends BaseKind<Params> {
     },
   };
 
-  getPreviewer(args: {
+  override getPreviewer(args: {
     item: DduItem;
   }): Promise<Previewer | undefined> {
     const action = args.item.action as ActionData;
