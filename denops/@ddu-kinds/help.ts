@@ -3,8 +3,8 @@ import {
   ActionFlags,
   DduItem,
   Previewer,
-} from "jsr:@shougo/ddu-vim@~6.4.0/types";
-import { BaseKind } from "jsr:@shougo/ddu-vim@~6.4.0/kind";
+} from "jsr:@shougo/ddu-vim@~10.4.0/types";
+import { BaseKind } from "jsr:@shougo/ddu-vim@~10.4.0/kind";
 
 export type ActionData = {
   word: string;
